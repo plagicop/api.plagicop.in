@@ -6,4 +6,4 @@ app = Flask(__name__)
 app.config.from_object(Config)
 mail = Mail(app)
 
-from app import routes, models
+from app import routes
