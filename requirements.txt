@@ -1,2 +1,6 @@
 flask
 flask-mail
+nltk
+scikit-learn
+PyPDF2
+flask-cors

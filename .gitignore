@@ -1,4 +1,7 @@
-venv/
 .env
-*/__pycache__/*
-__pycache__/
+
+# Python Virtual Environment
+venv/
+
+# Ignores All Pycache Folders
+**/__pycache__/

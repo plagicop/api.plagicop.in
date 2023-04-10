@@ -1,42 +1,42 @@
-from flask import Flask, request, jsonify
-import nltk
-from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+from flask import request, jsonify
+from app.lib.cosine_similarity_files import cosine_similarity_files
+import base64
+import PyPDF2
+import io
 
-app = Flask(__name__)
+from app import app
 
-nltk.download('punkt')
-nltk.download('stopwords')
-
-stop_words = set(stopwords.words('english'))
-
-def cosine_similarity_files(doc1, doc2):
-    with open(doc1, 'r') as f:
-        doc1_text = f.read()
-    with open(doc2, 'r') as f:
-        doc2_text = f.read()
-
-    doc1_tokens = word_tokenize(doc1_text)
-    doc1_tokens = [word.lower() for word in doc1_tokens if word.isalpha() and word.lower() not in stop_words]
-    doc2_tokens = word_tokenize(doc2_text)
-    doc2_tokens = [word.lower() for word in doc2_tokens if word.isalpha() and word.lower() not in stop_words]
-
-    vectorizer = TfidfVectorizer(tokenizer=lambda text: text, preprocessor=lambda text: text)
-
-    tfidf = vectorizer.fit_transform([doc1_tokens, doc2_tokens])
-
-    similarity = cosine_similarity(tfidf)[0][1]
-
-    return similarity
+@app.route('/health')
+def health():
+    return "OK"
 
 @app.route('/similarity', methods=['POST'])
 def get_similarity():
-    document1_file_path = request.form['document1']
-    document2_file_path = request.form['document2']
-
-    similarity = cosine_similarity_files(document1_file_path, document2_file_path)
+    data = request.json
+    print(data)
+    doc1blob = data['doc1blob']
+    print(doc1blob)
+    doc1blob = bytes(base64.b64decode(doc1blob))
+    doc2blob = data['doc2blob']
+    print(doc2blob)
+    doc2blob = bytes(base64.b64decode(doc2blob))
+    if data['fileType'] == "pdf":
+        pdf_reader = PyPDF2.PdfFileReader(io.BytesIO(doc1blob))
+        doc1 = ""
+        for i in range(pdf_reader.getNumPages()):
+            page = pdf_reader.getPage(i)
+            doc1 += page.extractText()
+        pdf_reader = PyPDF2.PdfFileReader(io.BytesIO(doc2blob))
+        doc2 = ""
+        for i in range(pdf_reader.getNumPages()):
+            page = pdf_reader.getPage(i)
+            doc2 += page.extractText()
+    elif data['fileType'] == "txt":
+        with io.BytesIO(doc1blob) as file:
+            doc1 = file.read()
+        with io.BytesIO(doc2blob) as file:
+            doc2 = file.read()
+    similarity = cosine_similarity_files(str(doc1), str(doc2))
 
     threshold = 0.8
 
@@ -46,8 +46,7 @@ def get_similarity():
         message = "The two documents are not similar."
     
     response = {'similarity_score': similarity, 'message': message}
+    print(response)
+    # response = {'similarity_score': 0.99*100, 'message': "pl"}
 
     return jsonify(response)
-
-if __name__ == '__main__':
-    app.run(debug=True)
