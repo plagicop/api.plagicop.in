@@ -3,6 +3,7 @@ from app.lib.cosine_similarity_files import cosine_similarity_files
 import base64
 import PyPDF2
 import io
+import docx
 
 from app import app
 
@@ -36,6 +37,12 @@ def get_similarity():
             doc1 = file.read()
         with io.BytesIO(doc2blob) as file:
             doc2 = file.read()
+    elif data['fileType'] == "docx":
+        docx1 = docx.Document(io.BytesIO(doc1blob))
+        doc1 = '\n'.join([paragraph.text for paragraph in docx1.paragraphs])
+        docx2 = docx.Document(io.BytesIO(doc2blob))
+        doc2 = '\n'.join([paragraph.text for paragraph in docx2.paragraphs])
+
     similarity = cosine_similarity_files(str(doc1), str(doc2))
 
     threshold = 0.8
