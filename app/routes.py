@@ -1,9 +1,7 @@
 from flask import request, jsonify
 from app.lib.cosine_similarity_files import cosine_similarity_files
+from app.lib.blobtotxt import blobtotxt
 import base64
-import PyPDF2
-import io
-import docx
 
 from app import app
 
@@ -14,35 +12,20 @@ def health():
 @app.route('/similarity', methods=['POST'])
 def get_similarity():
     data = request.json
-    print(data)
-    doc1blob = data['doc1blob']
-    print(doc1blob)
-    doc1blob = bytes(base64.b64decode(doc1blob))
-    doc2blob = data['doc2blob']
-    print(doc2blob)
-    doc2blob = bytes(base64.b64decode(doc2blob))
-    if data['fileType'] == "pdf":
-        pdf_reader = PyPDF2.PdfFileReader(io.BytesIO(doc1blob))
-        doc1 = ""
-        for i in range(pdf_reader.getNumPages()):
-            page = pdf_reader.getPage(i)
-            doc1 += page.extractText()
-        pdf_reader = PyPDF2.PdfFileReader(io.BytesIO(doc2blob))
-        doc2 = ""
-        for i in range(pdf_reader.getNumPages()):
-            page = pdf_reader.getPage(i)
-            doc2 += page.extractText()
-    elif data['fileType'] == "txt":
-        with io.BytesIO(doc1blob) as file:
-            doc1 = file.read()
-        with io.BytesIO(doc2blob) as file:
-            doc2 = file.read()
-    elif data['fileType'] == "docx":
-        docx1 = docx.Document(io.BytesIO(doc1blob))
-        doc1 = '\n'.join([paragraph.text for paragraph in docx1.paragraphs])
-        docx2 = docx.Document(io.BytesIO(doc2blob))
-        doc2 = '\n'.join([paragraph.text for paragraph in docx2.paragraphs])
-
+    if data['isdoc1blob'] == True:
+        doc1blob = data['doc1blob']
+        print(doc1blob)
+        doc1blob = bytes(base64.b64decode(doc1blob))
+        doc1 = blobtotxt(doc1blob, data['doc1fileType'])
+    else:
+        doc1 = data['doc1']
+    if data['isdoc2blob'] == True:
+        doc2blob = data['doc2blob']
+        print(doc2blob)
+        doc2blob = bytes(base64.b64decode(doc2blob))
+        doc2 = blobtotxt(doc2blob, data['doc2fileType'])
+    else:
+        doc2 = data['doc2']
     similarity = cosine_similarity_files(str(doc1), str(doc2))
 
     threshold = 0.8
