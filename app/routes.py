@@ -47,13 +47,24 @@ def get_similarity():
 def multisimilarity():
     data = request.json
     # print(data)
+    # return "ok"
     nooffiles = int(data['noofdocs'])
-    textfiles = []
+    textfiles = {}
     for i in range(nooffiles):
-        textfiles.append(blobtotxt(data[f'doc{i}']['base64'], data[f'doc{i}']['type']))
+        textfiles[data[f'doc{i}']['name']] = blobtotxt(data[f'doc{i}']['base64'], data[f'doc{i}']['type'])
+    print(textfiles.keys())
     similarity = []
-    for i in range(len(textfiles)):
-        similarity.append(find_similar_documents(textfiles[i], textfiles[:i]+textfiles[i+1:]))
+    for i in textfiles.keys():
+        extrafiles = dict(textfiles)
+        extrafiles.pop(i)
+        for ii in find_similar_documents(textfiles[i], extrafiles):
+            result = {}
+            result['file1'] = i
+            result['file2'] = ii[0]
+            result['similarity'] = ii[1]
+            similarity.append(result)
+        # similarity.append(find_similar_documents(textfiles[i], textfiles[:i]+textfiles[i+1:]))
+    print(similarity)
     return jsonify({
         "data": similarity
     })

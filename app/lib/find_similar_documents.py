@@ -8,10 +8,10 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 def find_similar_documents(files, extrafiles):
     preprocessed_content = preprocess(files)
-    tfidf = TfidfVectorizer().fit_transform([preprocessed_content] + list(extrafiles))
+    tfidf = TfidfVectorizer().fit_transform([preprocessed_content] + list(extrafiles.values()))
     similarity_scores = cosine_similarity(tfidf)[0][1:]
-    similarity_scores = cosine_similarity(tfidf)[0][1:]
-    similar_documents = sorted(zip(extrafiles, similarity_scores), key=lambda x: x[1], reverse=True)
+    similar_documents = sorted(zip(extrafiles.keys(), similarity_scores), key=lambda x: x[1], reverse=True)
+    print(similar_documents)
     return similar_documents
 
 def preprocess(text):
