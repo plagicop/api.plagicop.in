@@ -4,4 +4,4 @@ nltk
 scikit-learn
 PyPDF2
 flask-cors
-docx
+python-docx
