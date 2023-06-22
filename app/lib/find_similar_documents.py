@@ -15,7 +15,13 @@ def find_similar_documents(files, extrafiles):
         return False
     similarity_scores = cosine_similarity(tfidf)[0][1:]
     similar_documents = sorted(zip(extrafiles.keys(), similarity_scores), key=lambda x: x[1], reverse=True)
+    print("Similar Documents:")
     print(similar_documents)
+    for i in range(len(similar_documents)):
+        lameresult = lamecheck(files, extrafiles[similar_documents[i][0]])
+        if lameresult > similarity_scores[i]:
+            print(similar_documents)
+            similar_documents[i] = (similar_documents[i][0], lameresult)
     return similar_documents
 
 def preprocess(text):
@@ -34,3 +40,9 @@ def preprocess(text):
     text = ' '.join(tokens)
 
     return text
+
+def lamecheck(text1, text2):
+    if text1 == text2:
+        return 1
+    else:
+        return 0

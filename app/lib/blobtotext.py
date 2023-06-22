@@ -17,5 +17,5 @@ def blobtotxt(blob, fileType):
     elif fileType == "docx" or fileType == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
         docx1 = docx.Document(io.BytesIO(bytes_content))
         doc1 = '\n'.join([paragraph.text for paragraph in docx1.paragraphs])
-    print(doc1, fileType)
+    print(fileType)
     return doc1

@@ -51,8 +51,6 @@ def multisimilarity():
     textfiles = {}
     for i in range(nooffiles):
         textfiles[data[f'doc{i}']['name']] = blobtotxt(data[f'doc{i}']['base64'], data[f'doc{i}']['type'])
-    print(textfiles.keys())
-    print(textfiles.values())
     similarity = []
     for i in textfiles.keys():
         extrafiles = dict(textfiles)

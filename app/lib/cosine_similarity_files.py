@@ -7,6 +7,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 nltk.download('punkt')
 nltk.download('stopwords')
+nltk.download('wordnet')
 
 stop_words = set(stopwords.words('english'))
 
