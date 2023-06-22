@@ -45,4 +45,9 @@ def lamecheck(text1, text2):
     if text1 == text2:
         return 1
     else:
-        return 0
+        n = 0
+        t = text1.split(".")
+        for i in t:
+            if i in text2:
+                n += 1
+        return n/len(t)
