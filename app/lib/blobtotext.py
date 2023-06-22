@@ -12,7 +12,7 @@ def blobtotxt(blob, fileType):
             page = pdf_reader.getPage(i)
             doc1 += page.extractText()
     elif fileType == "txt":
-        with io.BytesIO(bytes_content) as file:
+        with io.BytesIO(bytes_content.decode('utf-8')) as file:
             doc1 = file.read()
     elif fileType == "docx" or fileType == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
         docx1 = docx.Document(io.BytesIO(bytes_content))

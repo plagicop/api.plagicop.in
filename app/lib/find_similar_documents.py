@@ -8,7 +8,11 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 def find_similar_documents(files, extrafiles):
     preprocessed_content = preprocess(files)
-    tfidf = TfidfVectorizer().fit_transform([preprocessed_content] + list(extrafiles.values()))
+    try:
+        tfidf = TfidfVectorizer().fit_transform([preprocessed_content] + list(extrafiles.values()))
+    except Exception as e:
+        print(e)
+        return False
     similarity_scores = cosine_similarity(tfidf)[0][1:]
     similar_documents = sorted(zip(extrafiles.keys(), similarity_scores), key=lambda x: x[1], reverse=True)
     print(similar_documents)

@@ -3,7 +3,6 @@ from app.lib.cosine_similarity_files import cosine_similarity_files
 from app.lib.blobtotext import blobtotxt
 from app.lib.find_similar_documents import find_similar_documents
 import base64
-import json
 
 from app import app
 
@@ -53,11 +52,18 @@ def multisimilarity():
     for i in range(nooffiles):
         textfiles[data[f'doc{i}']['name']] = blobtotxt(data[f'doc{i}']['base64'], data[f'doc{i}']['type'])
     print(textfiles.keys())
+    print(textfiles.values())
     similarity = []
     for i in textfiles.keys():
         extrafiles = dict(textfiles)
         extrafiles.pop(i)
-        for ii in find_similar_documents(textfiles[i], extrafiles):
+        thisresult = find_similar_documents(textfiles[i], extrafiles)
+        if thisresult == False:
+            return jsonify({
+                "status": "error",
+                "error": "Some of the files are empty or contain very less content. Please try again with different files."
+            })
+        for ii in thisresult:
             result = {}
             result['file1'] = i
             result['file2'] = ii[0]
@@ -66,5 +72,6 @@ def multisimilarity():
         # similarity.append(find_similar_documents(textfiles[i], textfiles[:i]+textfiles[i+1:]))
     print(similarity)
     return jsonify({
+        "status": "success",
         "data": similarity
     })
